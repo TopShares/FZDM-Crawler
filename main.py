@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import asyncio
-import logging
 import re
 import signal
 import sys
@@ -25,8 +24,7 @@ class Crawler:
         self.session = aiohttp.ClientSession(loop=loop)
 
     async def run(self):
-        t = asyncio.ensure_future(self.addurls([(self.rooturl, '')]),
-                                  loop=self.loop)
+        t = asyncio.ensure_future(self.addurls([(self.rooturl, '')]), loop=self.loop)
         await asyncio.sleep(1, loop=self.loop)
         while self.busy:
             await asyncio.sleep(1, loop=self.loop)
@@ -52,7 +50,6 @@ class Crawler:
 
     async def process(self, url):
         print('processing:', url)
-
         self.todo.remove(url)
         self.busy.add(url)
         try:
@@ -61,26 +58,29 @@ class Crawler:
             print('...', url, 'has error', repr(str(exc)))
             self.done[url] = False
         else:
-            print(resp.status)
-            print("ooooo")
             if (resp.status == 200 and
                     ('text/html' in resp.headers.get('content-type'))):
-                data = (await resp.read()).decode('utf-8', 'replace')
-                print('ooooooooioooooo'+data)
-                urls = re.findall(r'(?i)href=["\']?([^\s"\'<>]+)', data)
+                html = (await resp.read()).decode('utf-8', 'replace')  # html
+
+                urls = re.findall(r'(?i)href=["\']?([^\s"\'<>]+)', html)
                 asyncio.Task(self.addurls([(u, url) for u in urls]))
 
             resp.close()
             self.done[url] = True
 
         self.busy.remove(url)
-        print(len(self.done), 'completed tasks,', len(self.tasks),
-              'still pending, todo', len(self.todo))
+        print(len(self.done), 'completed tasks,', len(self.tasks), 'still pending, todo', len(self.todo))
+
+    # TODO
+
+    async def DetailProcess(self, url):
+        pass
 
 
 def main():
     loop = asyncio.get_event_loop()
-    baseUrl = 'https://manhua.fzdm.com/56/'
+    
+    baseUrl = 'https://manhua.fzdm.com/56/' 
     c = Crawler(baseUrl, loop)
     asyncio.ensure_future(c.run(), loop=loop)
 
@@ -97,6 +97,6 @@ def main():
 
 if __name__ == '__main__':
     import time
-    t1 = time.time()
+    start = time.time()
     main()
-    print("total time: ", time.time() - t1)
+    print("total time: ", time.time() - start)
