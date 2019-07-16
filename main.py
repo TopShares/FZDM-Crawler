@@ -62,8 +62,16 @@ class Crawler:
                     ('text/html' in resp.headers.get('content-type'))):
                 html = (await resp.read()).decode('utf-8', 'replace')  # html
 
-                urls = re.findall(r'(?i)href=["\']?([^\s"\'<>]+)', html)
-                asyncio.Task(self.addurls([(u, url) for u in urls]))
+                # urls = re.findall(r'(?i)href=["\']?([^\s"\'<>]+)', html)
+                
+                
+                html = etree.HTML(html)
+                urls = html.xpath('//*[@id="content"]//li//a//@href') # urls
+
+                for u in urls:
+                    
+                    print("this page urls is " + u)
+                # asyncio.Task(self.addurls([(u, url) for u in urls]))
 
             resp.close()
             self.done[url] = True
