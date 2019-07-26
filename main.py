@@ -88,7 +88,7 @@ class Crawler:
 def main():
     loop = asyncio.get_event_loop()
     
-    baseUrl = 'https://manhua.fzdm.com/56/' 
+    baseUrl = 'https://manhua.fzdm.com/56/'   # 七原罪
     c = Crawler(baseUrl, loop)
     asyncio.ensure_future(c.run(), loop=loop)
 
